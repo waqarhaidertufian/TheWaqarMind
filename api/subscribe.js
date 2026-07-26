@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Initialize Supabase
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Initialize Supabase with Service Role Key for server-side operations
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Rate limiting using simple in-memory store (for production, use Redis)
 const rateLimitMap = new Map();
@@ -98,8 +98,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      logError('Config', new Error('Supabase credentials are not configured'));
+    if (!supabaseUrl || !supabaseServiceKey) {
+      logError('Config', new Error('Supabase service role credentials are not configured'));
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
@@ -113,37 +113,21 @@ export default async function handler(req, res) {
     // Sanitize email
     const sanitizedEmail = sanitizeEmail(email);
 
-    // Check if email already exists in Supabase
-    const { data: existingSubscriber, error: checkError } = await supabase
-      .from('subscribers')
-      .select('email')
-      .eq('email', sanitizedEmail)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, which is expected for new subscribers
-      logError('SupabaseCheck', checkError, { email: sanitizedEmail, code: checkError.code, message: checkError.message });
-      return res.status(500).json({ 
-        error: 'Database check failed',
-        details: checkError.message,
-        code: checkError.code
-      });
-    }
-
-    if (existingSubscriber) {
-      logError('Duplicate', new Error('Email already subscribed'), { email: sanitizedEmail });
-      return res.status(409).json({ error: 'Email already subscribed' });
-    }
-
-    // Add subscriber to Supabase
+    // Add subscriber to Supabase (UNIQUE constraint will handle duplicates)
     const { error: insertError } = await supabase
       .from('subscribers')
       .insert({
-        email: sanitizedEmail,
-        status: 'active'
+        email: sanitizedEmail
       });
 
     if (insertError) {
+      // Handle duplicate email (UNIQUE constraint violation)
+      if (insertError.code === '23505') {
+        logError('Duplicate', new Error('Email already subscribed'), { email: sanitizedEmail });
+        return res.status(409).json({ error: 'Email already subscribed' });
+      }
+      
+      // Handle other errors
       logError('SupabaseInsert', insertError, { email: sanitizedEmail, code: insertError.code, message: insertError.message });
       return res.status(500).json({ 
         error: 'Database insert failed',
