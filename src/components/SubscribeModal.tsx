@@ -150,7 +150,7 @@ export const SubscribeModal: React.FC<SubscribeModalProps> = ({ isOpen, onClose 
                         </svg>
                       </div>
                       <p className="text-[#E1E0CC] font-medium mb-2">{message}</p>
-                      <p className="text-sm text-gray-400">Check your inbox for a confirmation message.</p>
+                      <p className="text-sm text-gray-400">Thanks for reaching out! TheWaqarMind team will be in touch via email.</p>
                     </motion.div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
