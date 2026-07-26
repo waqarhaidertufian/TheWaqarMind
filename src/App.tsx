@@ -10,6 +10,7 @@ import { VelorahSection } from './components/VelorahSection';
 import { LibraryModal } from './components/LibraryModal';
 import { AboutUsModal } from './components/AboutUsModal';
 import { trackEvent } from './lib/analytics';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -75,6 +76,7 @@ export default function App() {
         <p>© {new Date().getFullYear()} TheWaqarMind, All rights reserved.</p>
         <p className="text-gray-600">Built with purpose. Driven by passion.</p>
       </footer>
+      <Analytics />
     </main>
   );
 }
