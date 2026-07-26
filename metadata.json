@@ -1,0 +1,6 @@
+{
+  "name": "TheWaqarMind",
+  "description": "A dark, moody, and cinematic landing page for creative studio TheWaqarMind.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

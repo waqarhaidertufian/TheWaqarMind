@@ -1,0 +1,126 @@
+import React, { useRef, useEffect } from 'react';
+
+export const LiquidHeroSection: React.FC = React.memo(() => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animFrameId: number;
+    let fadeStartTime: number | null = null;
+    let fadeDirection: 'in' | 'out' | null = null;
+    let initialOpacity = 0;
+
+    const startFade = (direction: 'in' | 'out') => {
+      fadeDirection = direction;
+      fadeStartTime = performance.now();
+      initialOpacity = parseFloat(video.style.opacity || '0');
+
+      const animate = (now: number) => {
+        if (!fadeStartTime || !fadeDirection) return;
+        const elapsed = now - fadeStartTime;
+        const duration = 500;
+        const progress = Math.min(elapsed / duration, 1);
+
+        if (fadeDirection === 'in') {
+          video.style.opacity = (initialOpacity + (1 - initialOpacity) * progress).toString();
+        } else {
+          video.style.opacity = (initialOpacity * (1 - progress)).toString();
+        }
+
+        if (progress < 1) {
+          animFrameId = requestAnimationFrame(animate);
+        } else {
+          fadeDirection = null;
+        }
+      };
+
+      cancelAnimationFrame(animFrameId);
+      animFrameId = requestAnimationFrame(animate);
+    };
+
+    const handleCanPlay = () => {
+      video.play().catch(() => {});
+      startFade('in');
+    };
+
+    const handleTimeUpdate = () => {
+      if (video.duration) {
+        const remaining = video.duration - video.currentTime;
+        if (remaining <= 0.55 && fadeDirection !== 'out') {
+          startFade('out');
+        }
+      }
+    };
+
+    const handleEnded = () => {
+      video.style.opacity = '0';
+      setTimeout(() => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+        startFade('in');
+      }, 100);
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      cancelAnimationFrame(animFrameId);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  return (
+    <section className="min-h-screen w-full relative flex flex-col justify-between overflow-hidden bg-black text-white">
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        muted
+        autoPlay
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
+        style={{ opacity: 0 }}
+      >
+        <source
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      {/* Dark vignette overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-1" />
+
+      {/* Hero Content - Quotes */}
+      <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 md:p-12 pointer-events-none">
+        {/* Top left quote */}
+        <div className="max-w-md space-y-1 sm:space-y-1.5 text-white/70 text-xs sm:text-sm font-light tracking-wide leading-relaxed text-left">
+          <p>Time never asks if you're ready.</p>
+          <p>It simply keeps moving forward.</p>
+          <p>The question is not whether life will change.</p>
+          <p>It always does.</p>
+          <p>The question is whether you'll grow with it,</p>
+          <p>or spend your years wishing you had.</p>
+        </div>
+
+        {/* Bottom right quote */}
+        <div className="self-end text-right max-w-md space-y-1 sm:space-y-1.5 text-white/70 text-xs sm:text-sm font-light tracking-wide leading-relaxed mt-6">
+          <p>Not every silence is empty.</p>
+          <p>Some silence is where clarity is born.</p>
+          <p>The loudest answers rarely last,</p>
+          <p>but quiet wisdom stays forever.</p>
+          <p>Learn to listen before you speak.</p>
+          <p>The deepest truths are often whispered.</p>
+        </div>
+      </div>
+    </section>
+  );
+});
+
+LiquidHeroSection.displayName = 'LiquidHeroSection';
+
