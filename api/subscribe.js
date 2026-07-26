@@ -50,7 +50,29 @@ function sanitizeEmail(email) {
   return email.toLowerCase().trim();
 }
 
+// Safe error logging function
+function logError(context, error, details = {}) {
+  console.error(`[${context}] Error:`, {
+    message: error.message,
+    code: error.code,
+    details: error.details || details,
+    timestamp: new Date().toISOString()
+  });
+}
+
 export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -61,16 +83,30 @@ export default async function handler(req, res) {
 
     // Validate email
     if (!email || typeof email !== 'string') {
+      logError('Validation', new Error('Email is required'), { email });
       return res.status(400).json({ error: 'Email is required' });
     }
 
     if (!validateEmail(email)) {
+      logError('Validation', new Error('Invalid email address'), { email });
       return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // Check environment variables
+    if (!process.env.RESEND_API_KEY) {
+      logError('Config', new Error('RESEND_API_KEY is not configured'));
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      logError('Config', new Error('Supabase credentials are not configured'));
+      return res.status(500).json({ error: 'Server configuration error' });
     }
 
     // Rate limiting
     const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
     if (!checkRateLimit(ip)) {
+      logError('RateLimit', new Error('Too many requests'), { ip });
       return res.status(429).json({ error: 'Too many requests. Please try again later.' });
     }
 
@@ -86,11 +122,12 @@ export default async function handler(req, res) {
 
     if (checkError && checkError.code !== 'PGRST116') {
       // PGRST116 means no rows returned, which is expected for new subscribers
-      console.error('Error checking subscriber:', checkError);
+      logError('SupabaseCheck', checkError, { email: sanitizedEmail });
       return res.status(500).json({ error: 'Unable to process subscription' });
     }
 
     if (existingSubscriber) {
+      logError('Duplicate', new Error('Email already subscribed'), { email: sanitizedEmail });
       return res.status(409).json({ error: 'Email already subscribed' });
     }
 
@@ -103,7 +140,7 @@ export default async function handler(req, res) {
       });
 
     if (insertError) {
-      console.error('Error inserting subscriber:', insertError);
+      logError('SupabaseInsert', insertError, { email: sanitizedEmail });
       return res.status(500).json({ error: 'Unable to process subscription' });
     }
 
@@ -197,7 +234,7 @@ export default async function handler(req, res) {
         `
       });
     } catch (emailError) {
-      console.error('Error sending welcome email:', emailError);
+      logError('ResendEmail', emailError, { email: sanitizedEmail });
       // Don't fail the subscription if email fails, just log it
       // The subscriber is already added to Supabase
     }
@@ -208,7 +245,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Subscription error:', error);
+    logError('General', error, { body: req.body });
     return res.status(500).json({ error: 'Unable to process subscription' });
   }
 }
