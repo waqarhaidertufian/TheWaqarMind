@@ -74,3 +74,51 @@ ON storage.objects
 FOR DELETE 
 TO authenticated 
 USING (bucket_id = 'books' AND auth.role() = 'authenticated');
+
+-- ============================================================
+-- SUBSCRIBERS TABLE FOR EMAIL SUBSCRIPTIONS
+-- ============================================================
+
+-- 4. Create Subscribers Table
+CREATE TABLE IF NOT EXISTS public.subscribers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL DEFAULT 'active',
+    subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS) for Subscribers
+ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
+
+-- 5. RLS Policies for Subscribers Table
+-- Allow public to insert new subscribers (for subscription form)
+CREATE POLICY "Public Insert Access for Subscribers" 
+ON public.subscribers 
+FOR INSERT 
+TO anon
+WITH CHECK (true);
+
+-- Allow public to check if email exists (for duplicate prevention)
+CREATE POLICY "Public Read Access for Subscribers" 
+ON public.subscribers 
+FOR SELECT 
+TO anon
+USING (true);
+
+-- Allow authenticated users to update subscribers
+CREATE POLICY "Admin Update Access for Subscribers" 
+ON public.subscribers 
+FOR UPDATE 
+TO authenticated 
+USING (auth.role() = 'authenticated');
+
+-- Allow authenticated users to delete subscribers
+CREATE POLICY "Admin Delete Access for Subscribers" 
+ON public.subscribers 
+FOR DELETE 
+TO authenticated 
+USING (auth.role() = 'authenticated');
+
+-- Create index on email for faster lookups
+CREATE INDEX IF NOT EXISTS idx_subscribers_email ON public.subscribers(email);

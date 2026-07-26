@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Github, Linkedin, BookOpen, ArrowRight, Globe, Volume2, Music } from 'lucide-react';
+import { Github, Linkedin, BookOpen, ArrowRight, Globe, Volume2, Music, Mail } from 'lucide-react';
 import { WordsPullUp } from './WordsPullUp';
 
 interface HeroSectionProps {
   onOpenLibrary: () => void;
   onOpenAboutUs?: () => void;
+  onOpenSubscribe?: () => void;
 }
 
 const NAV_ITEMS = [
@@ -39,7 +40,7 @@ const AUDIO_SOURCES = [
   '/audio/hero-sound.mp3'
 ];
 
-export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibrary, onOpenAboutUs }) => {
+export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibrary, onOpenAboutUs, onOpenSubscribe }) => {
   const [activeNav, setActiveNav] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -160,6 +161,18 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                 </a>
               );
             })}
+
+            {/* Subscribe Button in Navbar */}
+            {onOpenSubscribe && (
+              <button
+                onClick={onOpenSubscribe}
+                title="Subscribe to newsletter"
+                className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium tracking-wide transition-all duration-250 flex items-center gap-2 cursor-pointer whitespace-nowrap bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-200 hover:from-amber-500/20 hover:to-orange-500/20 hover:border-amber-500/30 active:scale-95"
+              >
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
+                <span>Subscribe</span>
+              </button>
+            )}
 
             {/* Quick Sound Toggle in Navbar */}
             <button

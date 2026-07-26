@@ -9,12 +9,14 @@ import { StoryImageSection } from './components/StoryImageSection';
 import { VelorahSection } from './components/VelorahSection';
 import { LibraryModal } from './components/LibraryModal';
 import { AboutUsModal } from './components/AboutUsModal';
+import { SubscribeModal } from './components/SubscribeModal';
 import { trackEvent } from './lib/analytics';
 import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
 
   const handleOpenLibrary = () => {
     trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
@@ -26,6 +28,11 @@ export default function App() {
     setIsAboutOpen(true);
   };
 
+  const handleOpenSubscribe = () => {
+    trackEvent('Navigation', 'Open Subscribe', 'Email Subscription Modal');
+    setIsSubscribeOpen(true);
+  };
+
   return (
     <main className="bg-black min-h-screen text-[#E1E0CC] selection:bg-[#DEDBC8] selection:text-black relative">
       {/* --- THEWAQARMIND CREATIVE STUDIO --- */}
@@ -33,6 +40,7 @@ export default function App() {
       <HeroSection
         onOpenLibrary={handleOpenLibrary}
         onOpenAboutUs={handleOpenAbout}
+        onOpenSubscribe={handleOpenSubscribe}
       />
 
       {/* About Us Overlay Modal */}
@@ -45,6 +53,12 @@ export default function App() {
       <LibraryModal
         isOpen={isLibraryOpen}
         onClose={() => setIsLibraryOpen(false)}
+      />
+
+      {/* Subscribe Modal */}
+      <SubscribeModal
+        isOpen={isSubscribeOpen}
+        onClose={() => setIsSubscribeOpen(false)}
       />
 
       {/* Section 2: About */}
