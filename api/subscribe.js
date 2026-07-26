@@ -122,8 +122,12 @@ export default async function handler(req, res) {
 
     if (checkError && checkError.code !== 'PGRST116') {
       // PGRST116 means no rows returned, which is expected for new subscribers
-      logError('SupabaseCheck', checkError, { email: sanitizedEmail });
-      return res.status(500).json({ error: 'Unable to process subscription' });
+      logError('SupabaseCheck', checkError, { email: sanitizedEmail, code: checkError.code, message: checkError.message });
+      return res.status(500).json({ 
+        error: 'Database check failed',
+        details: checkError.message,
+        code: checkError.code
+      });
     }
 
     if (existingSubscriber) {
@@ -140,8 +144,12 @@ export default async function handler(req, res) {
       });
 
     if (insertError) {
-      logError('SupabaseInsert', insertError, { email: sanitizedEmail });
-      return res.status(500).json({ error: 'Unable to process subscription' });
+      logError('SupabaseInsert', insertError, { email: sanitizedEmail, code: insertError.code, message: insertError.message });
+      return res.status(500).json({ 
+        error: 'Database insert failed',
+        details: insertError.message,
+        code: insertError.code
+      });
     }
 
     // Send welcome email via Resend
