@@ -197,6 +197,25 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                 showAsterisk={true}
                 className="text-[13vw] sm:text-[12vw] md:text-[11vw] lg:text-[9.5vw] xl:text-[9vw] 2xl:text-[9.5vw] font-medium leading-[0.85] tracking-[-0.07em] text-[#E1E0CC]"
               />
+              
+              {/* Subscribe Button in Center */}
+              {onOpenSubscribe && (
+                <motion.button
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.6,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  onClick={onOpenSubscribe}
+                  title="Subscribe to newsletter"
+                  className="inline-flex items-center gap-2 px-6 py-3 mt-6 rounded-full bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 text-red-200 font-medium text-sm md:text-base tracking-wide backdrop-blur-md transition-all duration-300 shadow-xl cursor-pointer active:scale-95 hover:from-red-500/20 hover:to-red-600/20 hover:border-red-500/40 hover:shadow-red-500/20"
+                >
+                  <Mail className="w-4 h-4 md:w-5 md:h-5 text-red-300" />
+                  <span>Subscribe</span>
+                </motion.button>
+              )}
             </div>
 
             {/* Right 4 columns: Description + CTA */}
@@ -266,25 +285,6 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                     </>
                   )}
                 </motion.button>
-
-                {/* Subscribe Button */}
-                {onOpenSubscribe && (
-                  <motion.button
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: 0.85,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    onClick={onOpenSubscribe}
-                    title="Subscribe to newsletter"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 text-red-200 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-xl cursor-pointer active:scale-95 hover:from-red-500/20 hover:to-red-600/20 hover:border-red-500/40 hover:shadow-red-500/20"
-                  >
-                    <Mail className="w-4 h-4 text-red-300" />
-                    <span>Subscribe</span>
-                  </motion.button>
-                )}
               </div>
             </div>
           </div>
