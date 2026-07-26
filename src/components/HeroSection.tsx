@@ -162,18 +162,6 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
               );
             })}
 
-            {/* Subscribe Button in Navbar */}
-            {onOpenSubscribe && (
-              <button
-                onClick={onOpenSubscribe}
-                title="Subscribe to newsletter"
-                className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium tracking-wide transition-all duration-250 flex items-center gap-2 cursor-pointer whitespace-nowrap bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-200 hover:from-amber-500/20 hover:to-orange-500/20 hover:border-amber-500/30 active:scale-95"
-              >
-                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
-                <span>Subscribe</span>
-              </button>
-            )}
-
             {/* Quick Sound Toggle in Navbar */}
             <button
               onClick={toggleAudio}
@@ -278,6 +266,25 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                     </>
                   )}
                 </motion.button>
+
+                {/* Subscribe Button */}
+                {onOpenSubscribe && (
+                  <motion.button
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 0.85,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    onClick={onOpenSubscribe}
+                    title="Subscribe to newsletter"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 text-amber-200 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-xl cursor-pointer active:scale-95 hover:from-amber-500/20 hover:to-orange-500/20 hover:border-amber-500/40 hover:shadow-amber-500/20"
+                  >
+                    <Mail className="w-4 h-4 text-amber-300" />
+                    <span>Subscribe</span>
+                  </motion.button>
+                )}
               </div>
             </div>
           </div>
