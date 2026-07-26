@@ -9,18 +9,29 @@ import { StoryImageSection } from './components/StoryImageSection';
 import { VelorahSection } from './components/VelorahSection';
 import { LibraryModal } from './components/LibraryModal';
 import { AboutUsModal } from './components/AboutUsModal';
+import { trackEvent } from './lib/analytics';
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+
+  const handleOpenLibrary = () => {
+    trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
+    setIsLibraryOpen(true);
+  };
+
+  const handleOpenAbout = () => {
+    trackEvent('Navigation', 'Open About', 'About Us Modal');
+    setIsAboutOpen(true);
+  };
 
   return (
     <main className="bg-black min-h-screen text-[#E1E0CC] selection:bg-[#DEDBC8] selection:text-black relative">
       {/* --- THEWAQARMIND CREATIVE STUDIO --- */}
       {/* Section 1: Hero */}
       <HeroSection
-        onOpenLibrary={() => setIsLibraryOpen(true)}
-        onOpenAboutUs={() => setIsAboutOpen(true)}
+        onOpenLibrary={handleOpenLibrary}
+        onOpenAboutUs={handleOpenAbout}
       />
 
       {/* About Us Overlay Modal */}
@@ -56,7 +67,7 @@ export default function App() {
 
       {/* --- VELORAH HERO SECTION --- */}
       {/* Section 8: Velorah */}
-      <VelorahSection onOpenLibrary={() => setIsLibraryOpen(true)} />
+      <VelorahSection onOpenLibrary={handleOpenLibrary} />
 
       {/* Footer */}
       <footer className="bg-black border-t border-white/5 py-12 px-6 text-center text-xs text-gray-500 space-y-2">
