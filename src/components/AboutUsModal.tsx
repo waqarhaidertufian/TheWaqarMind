@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+// 1. Image ko local asset ke taur par import karein
+import founderImg from '../assets/founder.png'; 
 
 interface AboutUsModalProps {
   isOpen: boolean;
@@ -33,7 +35,6 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
           className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 md:p-8 bg-black/90 backdrop-blur-md overflow-y-auto"
           onClick={onClose}
         >
-          {/* Expanded Container Window for Desktop Full Screen Feel */}
           <motion.div
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -42,7 +43,7 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-full md:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] my-auto bg-[#2b221a] rounded-2xl md:rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.95)] overflow-hidden border border-white/5"
           >
-            {/* Premium Absolute Close Button (Slightly larger and high-contrast) */}
+            {/* Close Button */}
             <button
               onClick={onClose}
               className="absolute top-5 right-5 z-40 p-2.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-white transition-all duration-200 cursor-pointer shadow-lg backdrop-blur-md"
@@ -51,11 +52,11 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({ isOpen, onClose }) =
               <X className="w-5 h-5" />
             </button>
 
-            {/* Full-width Image Wrapper */}
+            {/* Image Wrapper */}
             <div className="w-full h-full flex items-center justify-center bg-[#2b221a]">
               <img
-                src="https://i.postimg.cc/sgTY2wcw/d69ef686-550b-4444-985c-b2bd240df0e3.png"
-                alt="About Our Founder - Waqar Haider"
+                src={founderImg} // 2. Yahan imported variable use karein
+                alt="About Our Founder"
                 className="w-full h-auto max-h-[92vh] md:max-h-[90vh] object-contain select-none"
                 loading="eager"
               />
