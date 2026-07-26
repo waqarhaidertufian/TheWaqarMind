@@ -279,9 +279,9 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                     }}
                     onClick={onOpenSubscribe}
                     title="Subscribe to newsletter"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 text-amber-200 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-xl cursor-pointer active:scale-95 hover:from-amber-500/20 hover:to-orange-500/20 hover:border-amber-500/40 hover:shadow-amber-500/20"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 text-red-200 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-xl cursor-pointer active:scale-95 hover:from-red-500/20 hover:to-red-600/20 hover:border-red-500/40 hover:shadow-red-500/20"
                   >
-                    <Mail className="w-4 h-4 text-amber-300" />
+                    <Mail className="w-4 h-4 text-red-300" />
                     <span>Subscribe</span>
                   </motion.button>
                 )}
