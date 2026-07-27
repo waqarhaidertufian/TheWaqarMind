@@ -12,7 +12,7 @@ export const Toast: React.FC<ToastProps> = React.memo(({ isVisible, onHide }) =>
     if (isVisible) {
       const timer = setTimeout(() => {
         onHide();
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isVisible, onHide]);
@@ -21,11 +21,11 @@ export const Toast: React.FC<ToastProps> = React.memo(({ isVisible, onHide }) =>
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
+          initial={{ opacity: 0, x: 100, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 100, scale: 0.95 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] max-w-md w-full mx-4"
+          className="fixed top-24 right-4 sm:right-8 z-[100] px-6 py-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] max-w-sm w-full"
         >
           <div className="flex items-start gap-4">
             {/* Icon */}

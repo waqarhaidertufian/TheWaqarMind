@@ -22,6 +22,16 @@ export default function App() {
   const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
   const [isToastVisible, setIsToastVisible] = useState(false);
 
+  // Auto-show toast after preloader completes
+  useEffect(() => {
+    if (isPreloaderComplete) {
+      const timer = setTimeout(() => {
+        setIsToastVisible(true);
+      }, 1000); // Show toast 1 second after preloader completes
+      return () => clearTimeout(timer);
+    }
+  }, [isPreloaderComplete]);
+
   const handleOpenLibrary = () => {
     trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
     setIsLibraryOpen(true);
@@ -35,7 +45,6 @@ export default function App() {
   const handleOpenSubscribe = () => {
     trackEvent('Navigation', 'Open Subscribe', 'Email Subscription Modal');
     setIsSubscribeOpen(true);
-    setIsToastVisible(true);
   };
 
   return (
