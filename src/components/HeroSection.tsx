@@ -193,15 +193,28 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{
-                  duration: 0.5,
+                  duration: 0.6,
                   delay: 0.3,
                   ease: [0.16, 1, 0.3, 1],
                 }}
                 onClick={onOpenSubscribe}
                 title="Subscribe to newsletter"
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 text-red-200 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-lg cursor-pointer active:scale-95 hover:from-red-500/20 hover:to-red-600/20 hover:border-red-500/40 hover:shadow-red-500/20"
+                className="relative inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-red-600/40 to-red-700/40 border border-red-500/60 text-red-100 font-medium text-xs sm:text-sm tracking-wide backdrop-blur-md transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.4)] cursor-pointer active:scale-95 hover:from-red-600/60 hover:to-red-700/60 hover:border-red-400/80 hover:shadow-[0_0_30px_rgba(239,68,68,0.6)]"
               >
-                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-300" />
+                {/* Pulsing glow effect */}
+                <motion.span
+                  className="absolute -inset-1 rounded-full bg-red-500/30 blur-md -z-10"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.4, 0.7, 0.4],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-200" />
                 <span>Subscribe</span>
               </motion.button>
             </div>
