@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
 import { FeaturesSection } from './components/FeaturesSection';
@@ -10,6 +10,7 @@ import { VelorahSection } from './components/VelorahSection';
 import { LibraryModal } from './components/LibraryModal';
 import { AboutUsModal } from './components/AboutUsModal';
 import { SubscribeModal } from './components/SubscribeModal';
+import { Preloader } from './components/Preloader';
 import { trackEvent } from './lib/analytics';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -17,6 +18,7 @@ export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
 
   const handleOpenLibrary = () => {
     trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
@@ -35,6 +37,9 @@ export default function App() {
 
   return (
     <main className="bg-black min-h-screen text-[#E1E0CC] selection:bg-[#DEDBC8] selection:text-black relative">
+      {/* Preloader */}
+      <Preloader onComplete={() => setIsPreloaderComplete(true)} />
+
       {/* --- THEWAQARMIND CREATIVE STUDIO --- */}
       {/* Section 1: Hero */}
       <HeroSection
