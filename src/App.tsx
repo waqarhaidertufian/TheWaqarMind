@@ -11,6 +11,7 @@ import { LibraryModal } from './components/LibraryModal';
 import { AboutUsModal } from './components/AboutUsModal';
 import { SubscribeModal } from './components/SubscribeModal';
 import { Preloader } from './components/Preloader';
+import { Toast } from './components/Toast';
 import { trackEvent } from './lib/analytics';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -19,6 +20,7 @@ export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
   const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
+  const [isToastVisible, setIsToastVisible] = useState(false);
 
   const handleOpenLibrary = () => {
     trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
@@ -33,12 +35,16 @@ export default function App() {
   const handleOpenSubscribe = () => {
     trackEvent('Navigation', 'Open Subscribe', 'Email Subscription Modal');
     setIsSubscribeOpen(true);
+    setIsToastVisible(true);
   };
 
   return (
     <main className="bg-black min-h-screen text-[#E1E0CC] selection:bg-[#DEDBC8] selection:text-black relative">
       {/* Preloader */}
       <Preloader onComplete={() => setIsPreloaderComplete(true)} />
+
+      {/* Toast Notification */}
+      <Toast isVisible={isToastVisible} onHide={() => setIsToastVisible(false)} />
 
       {/* --- THEWAQARMIND CREATIVE STUDIO --- */}
       {/* Section 1: Hero */}
