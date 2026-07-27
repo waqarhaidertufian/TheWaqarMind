@@ -1,7 +1,8 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { motion, useInView } from 'motion/react';
 import { WordsPullUpMultiStyle } from './WordsPullUpMultiStyle';
 import { Segment } from '../types';
+import { useLazyVideo } from '../hooks/useLazyVideo';
 
 interface FeatureCardProps {
   index: number;
@@ -31,7 +32,52 @@ const FeatureCardWrapper: React.FC<FeatureCardProps> = React.memo(({ index, chil
 
 FeatureCardWrapper.displayName = 'FeatureCardWrapper';
 
+interface LazyVideoProps {
+  src: string;
+  className?: string;
+}
+
+const LazyVideo: React.FC<LazyVideoProps> = React.memo(({ src, className }) => {
+  const { videoRef, isIntersecting } = useLazyVideo({ rootMargin: '400px' });
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay={isIntersecting}
+      loop
+      muted
+      playsInline
+      preload={isIntersecting ? 'auto' : 'none'}
+      className={className}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+});
+
+LazyVideo.displayName = 'LazyVideo';
+
 export const FeaturesSection: React.FC = () => {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [saveDataEnabled, setSaveDataEnabled] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const connection = (navigator as any).connection;
+    if (connection) {
+      setSaveDataEnabled(connection.saveData);
+    }
+
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const shouldDisableVideo = prefersReducedMotion || saveDataEnabled;
+
   const headerSegments: Segment[] = useMemo(
     () => [
       {
@@ -62,19 +108,14 @@ export const FeaturesSection: React.FC = () => {
           {/* Card 1: Video Card */}
           <FeatureCardWrapper index={0}>
             <div className="rounded-2xl overflow-hidden relative min-h-[360px] lg:min-h-full h-full flex flex-col justify-end p-6 md:p-8 border border-white/5 group">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              >
-                <source
+              {!shouldDisableVideo ? (
+                <LazyVideo
                   src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4"
-                  type="video/mp4"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </video>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800" />
+              )}
               <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
               <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
@@ -86,21 +127,14 @@ export const FeaturesSection: React.FC = () => {
           {/* Card 2: Project Storyboard */}
           <FeatureCardWrapper index={1}>
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              {/* Background Video */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              >
-                <source src="/videos/hero-card-2.mp4" type="video/mp4" />
-                <source
+              {!shouldDisableVideo ? (
+                <LazyVideo
                   src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8.mp4"
-                  type="video/mp4"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </video>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800" />
+              )}
 
               {/* Overlays */}
               <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
@@ -115,21 +149,14 @@ export const FeaturesSection: React.FC = () => {
           {/* Card 3: Smart Critiques */}
           <FeatureCardWrapper index={2}>
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              {/* Background Video */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              >
-                <source src="/videos/card-02.mp4" type="video/mp4" />
-                <source
+              {!shouldDisableVideo ? (
+                <LazyVideo
                   src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
-                  type="video/mp4"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </video>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800" />
+              )}
 
               {/* Overlays */}
               <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
@@ -144,21 +171,14 @@ export const FeaturesSection: React.FC = () => {
           {/* Card 4: Immersion Capsule */}
           <FeatureCardWrapper index={3}>
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              {/* Background Video */}
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              >
-                <source src="/videos/card-03.mp4" type="video/mp4" />
-                <source
+              {!shouldDisableVideo ? (
+                <LazyVideo
                   src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4"
-                  type="video/mp4"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </video>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800" />
+              )}
 
               {/* Overlays */}
               <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />

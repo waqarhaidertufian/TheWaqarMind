@@ -1,28 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useLazyVideo } from '../hooks/useLazyVideo';
 
 interface VelorahSectionProps {
   onOpenLibrary?: () => void;
 }
 
 export const VelorahSection: React.FC<VelorahSectionProps> = React.memo(({ onOpenLibrary }) => {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [saveDataEnabled, setSaveDataEnabled] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const connection = (navigator as any).connection;
+    if (connection) {
+      setSaveDataEnabled(connection.saveData);
+    }
+
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const shouldDisableVideo = prefersReducedMotion || saveDataEnabled;
+  const { videoRef, isIntersecting } = useLazyVideo({ rootMargin: '200px', disabled: shouldDisableVideo });
+
   return (
     <section id="velorah" className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-[#020b14] text-white">
       {/* Fullscreen Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4"
-          type="video/mp4"
-        />
-      </video>
+      {!shouldDisableVideo ? (
+        <video
+          ref={videoRef}
+          autoPlay={isIntersecting}
+          loop
+          muted
+          playsInline
+          preload={isIntersecting ? 'auto' : 'none'}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4"
+            type="video/mp4"
+          />
+        </video>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#020b14] to-[#0a1520] z-0" />
+      )}
 
       {/* Dark tint gradient for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 z-0 pointer-events-none" />
