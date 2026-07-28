@@ -6,7 +6,7 @@ export const PhilosophySection: React.FC = React.memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: '-100px' });
 
-  const LazyVideo: React.FC<{ src: string; className?: string }> = React.memo(({ src, className }) => {
+  const LazyVideo: React.FC<{ src: string; className?: string; poster?: string }> = React.memo(({ src, className, poster }) => {
     const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '400px' });
 
     if (shouldDisableVideo) {
@@ -21,6 +21,7 @@ export const PhilosophySection: React.FC = React.memo(() => {
         muted
         playsInline
         preload={isIntersecting ? 'auto' : 'metadata'}
+        poster={poster}
         className={className}
       >
         <source src={src} type="video/mp4" />
@@ -51,6 +52,7 @@ export const PhilosophySection: React.FC = React.memo(() => {
           >
             <LazyVideo
               src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
+              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23141414'/%3E%3Cstop offset='100%25' style='stop-color:%230a0a0a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
