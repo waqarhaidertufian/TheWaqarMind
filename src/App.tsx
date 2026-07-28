@@ -13,6 +13,7 @@ import { SubscribeModal } from './components/SubscribeModal';
 import { Preloader } from './components/Preloader';
 import { trackEvent } from './lib/analytics';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -96,7 +97,7 @@ export default function App() {
         <p className="text-gray-600">Built with purpose. Driven by passion.</p>
       </footer>
       <Analytics />
+      <SpeedInsights />
     </main>
   );
 }
-
