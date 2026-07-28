@@ -12,8 +12,7 @@ import { AboutUsModal } from './components/AboutUsModal';
 import { SubscribeModal } from './components/SubscribeModal';
 import { Preloader } from './components/Preloader';
 import { Toast } from './components/Toast';
-import { trackEvent } from './lib/analytics';
-import { Analytics } from '@vercel/analytics/react';
+import { initGA, trackEvent } from './lib/analytics';
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -21,6 +20,11 @@ export default function App() {
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
   const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
   const [isToastVisible, setIsToastVisible] = useState(false);
+
+  // Initialize Google Analytics 4
+  useEffect(() => {
+    initGA('G-K1WB5QRFY1');
+  }, []);
 
   // Auto-show toast after preloader completes
   useEffect(() => {
@@ -110,7 +114,6 @@ export default function App() {
         <p>© {new Date().getFullYear()} TheWaqarMind, All rights reserved.</p>
         <p className="text-gray-600">Built with purpose. Driven by passion.</p>
       </footer>
-      <Analytics />
     </main>
   );
 }
