@@ -1,32 +1,17 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion, useInView } from 'motion/react';
 import { useLazyVideo } from '../hooks/useLazyVideo';
 
 export const PhilosophySection: React.FC = React.memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: '-100px' });
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [saveDataEnabled, setSaveDataEnabled] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const connection = (navigator as any).connection;
-    if (connection) {
-      setSaveDataEnabled(connection.saveData);
-    }
-
-    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  const shouldDisableVideo = prefersReducedMotion || saveDataEnabled;
 
   const LazyVideo: React.FC<{ src: string; className?: string }> = React.memo(({ src, className }) => {
-    const { videoRef, isIntersecting } = useLazyVideo({ rootMargin: '400px' });
+    const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '400px' });
+
+    if (shouldDisableVideo) {
+      return <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />;
+    }
 
     return (
       <video
@@ -35,7 +20,7 @@ export const PhilosophySection: React.FC = React.memo(() => {
         loop
         muted
         playsInline
-        preload={isIntersecting ? 'auto' : 'none'}
+        preload={isIntersecting ? 'auto' : 'metadata'}
         className={className}
       >
         <source src={src} type="video/mp4" />
@@ -64,14 +49,10 @@ export const PhilosophySection: React.FC = React.memo(() => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="rounded-3xl overflow-hidden aspect-[16/9] w-full border border-white/10 relative"
           >
-            {!shouldDisableVideo ? (
-              <LazyVideo
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />
-            )}
+            <LazyVideo
+              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           </motion.div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
 import { FeaturesSection } from './components/FeaturesSection';
@@ -7,12 +7,14 @@ import { AsmeAboutSection } from './components/AsmeAboutSection';
 import { PhilosophySection } from './components/PhilosophySection';
 import { StoryImageSection } from './components/StoryImageSection';
 import { VelorahSection } from './components/VelorahSection';
-import { LibraryModal } from './components/LibraryModal';
-import { AboutUsModal } from './components/AboutUsModal';
-import { SubscribeModal } from './components/SubscribeModal';
 import { Preloader } from './components/Preloader';
 import { Toast } from './components/Toast';
 import { trackEvent } from './lib/analytics';
+
+// Lazy loaded modals
+const LibraryModal = lazy(() => import('./components/LibraryModal').then(module => ({ default: module.LibraryModal })));
+const AboutUsModal = lazy(() => import('./components/AboutUsModal').then(module => ({ default: module.AboutUsModal })));
+const SubscribeModal = lazy(() => import('./components/SubscribeModal').then(module => ({ default: module.SubscribeModal })));
 
 export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -61,24 +63,26 @@ export default function App() {
         onOpenAboutUs={handleOpenAbout}
         onOpenSubscribe={handleOpenSubscribe}
       />
+      {/* Modals with Lazy Loading */}
+      <Suspense fallback={null}>
+        {/* About Us Overlay Modal */}
+        <AboutUsModal
+          isOpen={isAboutOpen}
+          onClose={() => setIsAboutOpen(false)}
+        />
 
-      {/* About Us Overlay Modal */}
-      <AboutUsModal
-        isOpen={isAboutOpen}
-        onClose={() => setIsAboutOpen(false)}
-      />
+        {/* Digital Library Modal View */}
+        <LibraryModal
+          isOpen={isLibraryOpen}
+          onClose={() => setIsLibraryOpen(false)}
+        />
 
-      {/* Digital Library Modal View */}
-      <LibraryModal
-        isOpen={isLibraryOpen}
-        onClose={() => setIsLibraryOpen(false)}
-      />
-
-      {/* Subscribe Modal */}
-      <SubscribeModal
-        isOpen={isSubscribeOpen}
-        onClose={() => setIsSubscribeOpen(false)}
-      />
+        {/* Subscribe Modal */}
+        <SubscribeModal
+          isOpen={isSubscribeOpen}
+          onClose={() => setIsSubscribeOpen(false)}
+        />
+      </Suspense>
 
       {/* Section 2: About */}
       <AboutSection />

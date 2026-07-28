@@ -1,13 +1,32 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend lazily
+let resend;
+function getResendClient() {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
-// Initialize Supabase with Service Role Key for server-side operations
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Initialize Supabase lazily with Service Role Key for server-side operations
+let supabase;
+function getSupabaseClient() {
+  if (!supabase) {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase credentials are not configured');
+    }
+    supabase = createClient(supabaseUrl, supabaseServiceKey);
+  }
+  return supabase;
+}
 
 // Rate limiting using simple in-memory store (for production, use Redis)
 const rateLimitMap = new Map();
@@ -92,14 +111,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid email address' });
     }
 
-    // Check environment variables
-    if (!process.env.RESEND_API_KEY) {
-      logError('Config', new Error('RESEND_API_KEY is not configured'));
+    // Check environment variables and initialize clients dynamically
+    let dbClient;
+    try {
+      dbClient = getSupabaseClient();
+    } catch (e) {
+      logError('Config', new Error('Supabase credentials are not configured'));
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      logError('Config', new Error('Supabase service role credentials are not configured'));
+    let mailClient;
+    try {
+      mailClient = getResendClient();
+    } catch (e) {
+      logError('Config', new Error('RESEND_API_KEY is not configured'));
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
@@ -114,7 +139,7 @@ export default async function handler(req, res) {
     const sanitizedEmail = sanitizeEmail(email);
 
     // Add subscriber to Supabase (UNIQUE constraint will handle duplicates)
-    const { error: insertError } = await supabase
+    const { error: insertError } = await dbClient
       .from('subscribers')
       .insert({
         email: sanitizedEmail
@@ -138,7 +163,7 @@ export default async function handler(req, res) {
 
     // Send welcome email via Resend
     try {
-      await resend.emails.send({
+      await mailClient.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@thewaqarmind.com',
         to: sanitizedEmail,
         subject: 'Welcome to TheWaqarMind',

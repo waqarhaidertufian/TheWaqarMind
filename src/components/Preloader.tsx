@@ -11,102 +11,32 @@ export const Preloader: React.FC<PreloaderProps> = React.memo(({ onComplete }) =
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    const criticalAssets = [
-      // Hero video
-      'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4',
-      // Liquid hero video
-      'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4',
-    ];
+    let startTimestamp: number;
+    let animFrameId: number;
+    const duration = 1000; // 1 second visual progress transition
 
-    let loadedCount = 0;
-    const totalAssets = criticalAssets.length;
+    const animateProgress = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const elapsed = timestamp - startTimestamp;
+      const percentage = Math.min(Math.round((elapsed / duration) * 100), 100);
 
-    const updateProgress = (loaded: number, total: number) => {
-      const percentage = Math.round((loaded / total) * 100);
       setProgress(percentage);
-    };
 
-    const loadAsset = (url: string, isVideo: boolean): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        if (isVideo) {
-          const video = document.createElement('video');
-          video.preload = 'auto';
-          video.muted = true;
-          video.playsInline = true;
-
-          const handleCanPlay = () => {
-            cleanup();
-            resolve();
-          };
-
-          const handleError = () => {
-            console.warn('Video failed to preload:', url);
-            cleanup();
-            resolve(); // Continue even if one asset fails
-          };
-
-          const cleanup = () => {
-            video.removeEventListener('canplay', handleCanPlay);
-            video.removeEventListener('error', handleError);
-            video.src = '';
-            video.load();
-          };
-
-          video.addEventListener('canplay', handleCanPlay);
-          video.addEventListener('error', handleError);
-          video.src = url;
-          video.load();
-        } else {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn('Image failed to preload:', url);
-            resolve(); // Continue even if one asset fails
-          };
-          img.src = url;
-        }
-      });
-    };
-
-    const loadCriticalAssets = async () => {
-      try {
-        // Load hero video first (highest priority)
-        await loadAsset(criticalAssets[0], true);
-        loadedCount++;
-        updateProgress(loadedCount, totalAssets);
-
-        // Load liquid hero video
-        await loadAsset(criticalAssets[1], true);
-        loadedCount++;
-        updateProgress(loadedCount, totalAssets);
-      } catch (error) {
-        console.error('Error loading critical assets:', error);
+      if (elapsed < duration) {
+        animFrameId = requestAnimationFrame(animateProgress);
+      } else {
+        // Small delay to show 100% before transition
+        setTimeout(() => {
+          setIsLoading(false);
+          onComplete();
+        }, 300);
       }
     };
 
-    // Safety timeout: max 8 seconds
-    timeoutRef.current = setTimeout(() => {
-      console.log('Preloader safety timeout reached');
-      setIsLoading(false);
-      onComplete();
-    }, 8000);
-
-    loadCriticalAssets().then(() => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      // Small delay to show 100% before transition
-      setTimeout(() => {
-        setIsLoading(false);
-        onComplete();
-      }, 500);
-    });
+    animFrameId = requestAnimationFrame(animateProgress);
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      cancelAnimationFrame(animFrameId);
     };
   }, [onComplete]);
 

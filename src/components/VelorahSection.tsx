@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BookOpen, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useLazyVideo } from '../hooks/useLazyVideo';
@@ -8,26 +8,7 @@ interface VelorahSectionProps {
 }
 
 export const VelorahSection: React.FC<VelorahSectionProps> = React.memo(({ onOpenLibrary }) => {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [saveDataEnabled, setSaveDataEnabled] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const connection = (navigator as any).connection;
-    if (connection) {
-      setSaveDataEnabled(connection.saveData);
-    }
-
-    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  const shouldDisableVideo = prefersReducedMotion || saveDataEnabled;
-  const { videoRef, isIntersecting } = useLazyVideo({ rootMargin: '200px', disabled: shouldDisableVideo });
+  const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '200px' });
 
   return (
     <section id="velorah" className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-[#020b14] text-white">
@@ -39,7 +20,7 @@ export const VelorahSection: React.FC<VelorahSectionProps> = React.memo(({ onOpe
           loop
           muted
           playsInline
-          preload={isIntersecting ? 'auto' : 'none'}
+          preload={isIntersecting ? 'auto' : 'metadata'}
           className="absolute inset-0 w-full h-full object-cover z-0"
         >
           <source

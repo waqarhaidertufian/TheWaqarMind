@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 // 1. Image ko local asset ke taur par import karein
 import founderImg from '../assets/images/founder.png';

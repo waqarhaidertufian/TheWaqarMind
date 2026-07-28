@@ -12,10 +12,30 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [saveDataEnabled, setSaveDataEnabled] = useState(false);
+
+  // Check user media preferences for performance/accessibility
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const connection = (navigator as any).connection;
+    if (connection) {
+      setSaveDataEnabled(connection.saveData);
+    }
+
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const shouldDisableVideo = disabled || prefersReducedMotion || saveDataEnabled;
 
   useEffect(() => {
-    if (disabled) {
-      setIsIntersecting(true);
+    if (shouldDisableVideo) {
+      setIsIntersecting(true); // Treat as intersecting so fallback is resolved
       return;
     }
 
@@ -39,10 +59,11 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
     return () => {
       observer.disconnect();
     };
-  }, [rootMargin, threshold, disabled]);
+  }, [rootMargin, threshold, shouldDisableVideo]);
 
   useEffect(() => {
-    if (!isIntersecting || isLoaded) return;
+    // If we shouldn't play video or it's not in view yet, do nothing
+    if (shouldDisableVideo || !isIntersecting || isLoaded) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -75,8 +96,17 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
       video.removeEventListener('loadeddata', handleLoad);
       video.removeEventListener('error', handleError);
       video.removeEventListener('canplay', handleCanPlay);
+      
+      // Memory cleanup: stop loading and release decoder resources on unmount
+      video.pause();
+      try {
+        video.src = '';
+        video.load();
+      } catch (err) {
+        // Safe catch for browsers that throw when setting empty src
+      }
     };
-  }, [isIntersecting, isLoaded]);
+  }, [isIntersecting, isLoaded, shouldDisableVideo]);
 
-  return { videoRef, isIntersecting, isLoaded, hasError };
+  return { videoRef, isIntersecting, isLoaded, hasError, shouldDisableVideo };
 };

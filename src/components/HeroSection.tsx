@@ -36,8 +36,7 @@ const NAV_ITEMS = [
 ];
 
 const AUDIO_SOURCES = [
-  '/audio/YTDowncom-YouTube-Quiet-Forge-De.mp3',
-  '/audio/hero-sound.mp3'
+  '/audio/YTDowncom-YouTube-Quiet-Forge-De.mp3'
 ];
 
 export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibrary, onOpenAboutUs, onOpenSubscribe }) => {
@@ -73,8 +72,6 @@ export const HeroSection: React.FC<HeroSectionProps> = React.memo(({ onOpenLibra
         onEnded={() => setIsPlaying(false)}
       >
         <source src={AUDIO_SOURCES[0]} type="audio/mp3" />
-        <source src={AUDIO_SOURCES[1]} type="audio/mp3" />
-        <source src={AUDIO_SOURCES[2]} type="audio/mpeg" />
       </audio>
 
       {/* Outer rounded inset container */}

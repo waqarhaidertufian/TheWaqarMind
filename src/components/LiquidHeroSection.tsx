@@ -1,9 +1,12 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useLazyVideo } from '../hooks/useLazyVideo';
 
 export const LiquidHeroSection: React.FC = React.memo(() => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '500px' });
 
   useEffect(() => {
+    if (!isIntersecting || shouldDisableVideo) return;
+
     const video = videoRef.current;
     if (!video) return;
 
@@ -67,31 +70,48 @@ export const LiquidHeroSection: React.FC = React.memo(() => {
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('ended', handleEnded);
 
+    // If video is already ready to play when hook triggers
+    if (video.readyState >= 2) {
+      handleCanPlay();
+    } else {
+      video.load();
+    }
+
     return () => {
       cancelAnimationFrame(animFrameId);
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('ended', handleEnded);
+      
+      // Stop video and cleanup resources
+      video.pause();
+      try {
+        video.src = '';
+        video.load();
+      } catch (e) {}
     };
-  }, []);
+  }, [isIntersecting, shouldDisableVideo]);
 
   return (
     <section className="min-h-screen w-full relative flex flex-col justify-between overflow-hidden bg-black text-white">
       {/* Background Video */}
-      <video
-        ref={videoRef}
-        muted
-        autoPlay
-        playsInline
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
-        style={{ opacity: 0 }}
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
-          type="video/mp4"
-        />
-      </video>
+      {!shouldDisableVideo ? (
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload={isIntersecting ? 'auto' : 'metadata'}
+          className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
+          style={{ opacity: 0 }}
+        >
+          <source
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
+            type="video/mp4"
+          />
+        </video>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black pointer-events-none z-0" />
+      )}
 
       {/* Dark vignette overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-1" />

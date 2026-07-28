@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import { Book } from '../types';
 import { bookService } from '../services/bookService';
-import { PdfReaderModal } from './PdfReaderModal';
-import { AdminModal } from './AdminModal';
+
+// Lazy loaded nested modals
+const PdfReaderModal = lazy(() => import('./PdfReaderModal').then(module => ({ default: module.PdfReaderModal })));
+const AdminModal = lazy(() => import('./AdminModal').then(module => ({ default: module.AdminModal })));
 
 interface LibraryModalProps {
   isOpen: boolean;
@@ -398,19 +400,22 @@ export const LibraryModal: React.FC<LibraryModalProps> = React.memo(
             )}
           </div>
 
-          {/* PDF Reader Modal */}
-          <PdfReaderModal
-            book={activeBook}
-            onClose={() => setActiveBook(null)}
-          />
+          {/* PDF Reader & Admin Modals with Lazy Loading */}
+          <Suspense fallback={null}>
+            {/* PDF Reader Modal */}
+            <PdfReaderModal
+              book={activeBook}
+              onClose={() => setActiveBook(null)}
+            />
 
-          {/* Admin Portal Modal */}
-          <AdminModal
-            isOpen={isAdminOpen}
-            onClose={() => setIsAdminOpen(false)}
-            books={books}
-            onRefreshBooks={loadBooks}
-          />
+            {/* Admin Portal Modal */}
+            <AdminModal
+              isOpen={isAdminOpen}
+              onClose={() => setIsAdminOpen(false)}
+              books={books}
+              onRefreshBooks={loadBooks}
+            />
+          </Suspense>
         </motion.div>
       </AnimatePresence>
     );
