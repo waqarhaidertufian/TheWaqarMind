@@ -1,9 +1,32 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'motion/react';
+import { useLazyVideo } from '../hooks/useLazyVideo';
 
 export const PhilosophySection: React.FC = React.memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: '-100px' });
+
+  const LazyVideo: React.FC<{ src: string; className?: string }> = React.memo(({ src, className }) => {
+    const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '400px' });
+
+    if (shouldDisableVideo) {
+      return <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />;
+    }
+
+    return (
+      <video
+        ref={videoRef}
+        autoPlay={isIntersecting}
+        loop
+        muted
+        playsInline
+        preload={isIntersecting ? 'auto' : 'metadata'}
+        className={className}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+    );
+  });
 
   return (
     <section ref={containerRef} className="bg-black pt-6 sm:pt-10 md:pt-12 pb-24 md:pb-36 px-6 overflow-hidden">
@@ -18,7 +41,7 @@ export const PhilosophySection: React.FC = React.memo(() => {
           Mindset <em className="italic font-serif text-white/40">×</em> Mastery
         </motion.h2>
 
-        {/* Image Container */}
+        {/* Video Container */}
         <div className="flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -26,9 +49,8 @@ export const PhilosophySection: React.FC = React.memo(() => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="rounded-3xl overflow-hidden aspect-[16/9] w-full border border-white/10 relative"
           >
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%231a1a1a'/%3E%3Cstop offset='50%25' style='stop-color:%230f0f0f'/%3E%3Cstop offset='100%25' style='stop-color:%23141414'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
-              alt="Mindset × Mastery"
+            <LazyVideo
+              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
