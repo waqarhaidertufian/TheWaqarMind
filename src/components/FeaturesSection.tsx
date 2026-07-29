@@ -72,7 +72,7 @@ const CARDS = [
   },
   {
     quote: '"Life rewards those who stay consistent."',
-    image: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop',
   },
 ];
 
