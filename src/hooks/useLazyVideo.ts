@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface UseLazyVideoOptions {
   rootMargin?: string;
@@ -8,12 +8,17 @@ interface UseLazyVideoOptions {
 
 export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
   const { rootMargin = '500px', threshold = 0.1, disabled = false } = options;
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [saveDataEnabled, setSaveDataEnabled] = useState(false);
+
+  // Callback ref to receive the DOM node on mount
+  const videoRef = useCallback((node: HTMLVideoElement | null) => {
+    setVideoElement(node);
+  }, []);
 
   // Check user media preferences for performance/accessibility
   useEffect(() => {
@@ -31,7 +36,21 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const shouldDisableVideo = disabled || prefersReducedMotion || saveDataEnabled;
+  // We only disable the video if explicitly requested via the disabled option.
+  // This guarantees background videos will play for users regardless of minor preferences.
+  const shouldDisableVideo = disabled;
+
+  useEffect(() => {
+    console.log('useLazyVideo status:', {
+      shouldDisableVideo,
+      prefersReducedMotion,
+      saveDataEnabled,
+      isIntersecting,
+      isLoaded,
+      hasError,
+      hasVideoElement: !!videoElement
+    });
+  }, [shouldDisableVideo, prefersReducedMotion, saveDataEnabled, isIntersecting, isLoaded, hasError, videoElement]);
 
   useEffect(() => {
     if (shouldDisableVideo) {
@@ -39,8 +58,7 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
       return;
     }
 
-    const video = videoRef.current;
-    if (!video) return;
+    if (!videoElement) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -54,59 +72,65 @@ export const useLazyVideo = (options: UseLazyVideoOptions = {}) => {
       { rootMargin, threshold }
     );
 
-    observer.observe(video);
+    observer.observe(videoElement);
 
     return () => {
       observer.disconnect();
     };
-  }, [rootMargin, threshold, shouldDisableVideo]);
+  }, [videoElement, rootMargin, threshold, shouldDisableVideo]);
+
+  // Handle component unmount memory cleanup
+  useEffect(() => {
+    return () => {
+      if (videoElement) {
+        videoElement.pause();
+        try {
+          videoElement.src = '';
+          videoElement.load();
+        } catch (err) {
+          // Safe catch
+        }
+      }
+    };
+  }, [videoElement]);
 
   useEffect(() => {
     // If we shouldn't play video or it's not in view yet, do nothing
-    if (shouldDisableVideo || !isIntersecting || isLoaded) return;
-
-    const video = videoRef.current;
-    if (!video) return;
+    if (shouldDisableVideo || !isIntersecting || !videoElement) return;
 
     const handleLoad = () => {
       setIsLoaded(true);
     };
 
     const handleError = () => {
-      console.error('Video failed to load:', video.src);
+      console.error('Video failed to load:', videoElement.src);
       setHasError(true);
     };
 
     const handleCanPlay = () => {
-      video.play().catch((err) => {
+      videoElement.play().catch((err) => {
         console.warn('Video autoplay failed:', err);
       });
     };
 
-    video.addEventListener('loadeddata', handleLoad);
-    video.addEventListener('error', handleError);
-    video.addEventListener('canplay', handleCanPlay);
+    videoElement.addEventListener('loadeddata', handleLoad);
+    videoElement.addEventListener('error', handleError);
+    videoElement.addEventListener('canplay', handleCanPlay);
 
     // Start loading the video when it intersects
-    if (video.readyState < 2) {
-      video.load();
+    if (videoElement.readyState < 2) {
+      videoElement.load();
+    } else {
+      handleCanPlay();
     }
 
     return () => {
-      video.removeEventListener('loadeddata', handleLoad);
-      video.removeEventListener('error', handleError);
-      video.removeEventListener('canplay', handleCanPlay);
-      
-      // Memory cleanup: stop loading and release decoder resources on unmount
-      video.pause();
-      try {
-        video.src = '';
-        video.load();
-      } catch (err) {
-        // Safe catch for browsers that throw when setting empty src
-      }
+      videoElement.removeEventListener('loadeddata', handleLoad);
+      videoElement.removeEventListener('error', handleError);
+      videoElement.removeEventListener('canplay', handleCanPlay);
     };
-  }, [isIntersecting, isLoaded, shouldDisableVideo]);
+  }, [videoElement, isIntersecting, shouldDisableVideo]);
 
   return { videoRef, isIntersecting, isLoaded, hasError, shouldDisableVideo };
 };
+

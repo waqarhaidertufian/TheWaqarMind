@@ -1,8 +1,7 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { motion, useInView } from 'motion/react';
 import { WordsPullUpMultiStyle } from './WordsPullUpMultiStyle';
 import { Segment } from '../types';
-import { useLazyVideo } from '../hooks/useLazyVideo';
 
 interface FeatureCardProps {
   index: number;
@@ -32,37 +31,50 @@ const FeatureCardWrapper: React.FC<FeatureCardProps> = React.memo(({ index, chil
 
 FeatureCardWrapper.displayName = 'FeatureCardWrapper';
 
-interface LazyVideoProps {
+interface LazyImageProps {
   src: string;
+  alt: string;
   className?: string;
-  poster?: string;
 }
 
-const LazyVideo: React.FC<LazyVideoProps> = React.memo(({ src, className, poster }) => {
-  const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '400px' });
-
-  if (shouldDisableVideo) {
-    return <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800" />;
-  }
+const LazyImage: React.FC<LazyImageProps> = React.memo(({ src, alt, className }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <video
-      ref={videoRef}
-      autoPlay={isIntersecting}
-      loop
-      muted
-      playsInline
-      preload={isIntersecting ? 'auto' : 'metadata'}
-      crossOrigin="anonymous"
-      poster={poster}
-      className={className}
-    >
-      <source src={src} type="video/mp4" />
-    </video>
+    <div className="absolute inset-0 w-full h-full bg-neutral-950 overflow-hidden">
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} transition-opacity duration-1000 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={() => setIsLoaded(true)}
+        loading="lazy"
+      />
+    </div>
   );
 });
 
-LazyVideo.displayName = 'LazyVideo';
+LazyImage.displayName = 'LazyImage';
+
+const CARDS = [
+  {
+    quote: '"Every new day is a new chance."',
+    image: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    quote: '"Life is a journey, not a race."',
+    image: 'https://images.unsplash.com/photo-1494783367193-149034c05e8f?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    quote: '"Growth begins outside your comfort zone."',
+    image: 'https://images.unsplash.com/photo-1501555088652-021faa106b9b?q=80&w=800&auto=format&fit=crop',
+  },
+  {
+    quote: '"Life rewards those who stay consistent."',
+    image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=800&auto=format&fit=crop',
+  },
+];
 
 export const FeaturesSection: React.FC = () => {
   const headerSegments: Segment[] = useMemo(
@@ -92,81 +104,28 @@ export const FeaturesSection: React.FC = () => {
 
         {/* 4-column Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2 md:gap-1 lg:h-[480px]">
-          {/* Card 1: Video Card */}
-          <FeatureCardWrapper index={0}>
-            <div className="rounded-2xl overflow-hidden relative min-h-[360px] lg:min-h-full h-full flex flex-col justify-end p-6 md:p-8 border border-white/5 group">
-              <LazyVideo
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23121212'/%3E%3Cstop offset='100%25' style='stop-color:%230a0a0a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
-              <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
-                "Every new day is a new chance."
-              </h3>
-            </div>
-          </FeatureCardWrapper>
+          {CARDS.map((card, idx) => (
+            <FeatureCardWrapper key={idx} index={idx}>
+              <div className="rounded-2xl overflow-hidden relative min-h-[360px] lg:min-h-full h-full flex flex-col justify-end p-6 md:p-8 border border-white/5 group">
+                <LazyImage
+                  src={card.image}
+                  alt={card.quote}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                {/* Overlays */}
+                <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
 
-          {/* Card 2: Project Storyboard */}
-          <FeatureCardWrapper index={1}>
-            <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              <LazyVideo
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23111111'/%3E%3Cstop offset='100%25' style='stop-color:%23090909'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-
-              {/* Overlays */}
-              <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
-
-              <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
-                "Life is a journey, not a race."
-              </h3>
-            </div>
-          </FeatureCardWrapper>
-
-          {/* Card 3: Smart Critiques */}
-          <FeatureCardWrapper index={2}>
-            <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              <LazyVideo
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23101010'/%3E%3Cstop offset='100%25' style='stop-color:%23080808'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-
-              {/* Overlays */}
-              <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
-
-              <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
-                "Growth begins outside your comfort zone."
-              </h3>
-            </div>
-          </FeatureCardWrapper>
-
-          {/* Card 4: Immersion Capsule */}
-          <FeatureCardWrapper index={3}>
-            <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
-              <LazyVideo
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230f0f0f'/%3E%3Cstop offset='100%25' style='stop-color:%23070707'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-
-              {/* Overlays */}
-              <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-1" />
-
-              <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
-                "Life rewards those who stay consistent."
-              </h3>
-            </div>
-          </FeatureCardWrapper>
+                <h3 className="text-[#E1E0CC] text-lg sm:text-xl font-medium relative z-10">
+                  {card.quote}
+                </h3>
+              </div>
+            </FeatureCardWrapper>
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
 
