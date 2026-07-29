@@ -35,10 +35,9 @@ FeatureCardWrapper.displayName = 'FeatureCardWrapper';
 interface LazyVideoProps {
   src: string;
   className?: string;
-  poster?: string;
 }
 
-const LazyVideo: React.FC<LazyVideoProps> = React.memo(({ src, className, poster }) => {
+const LazyVideo: React.FC<LazyVideoProps> = React.memo(({ src, className }) => {
   const { videoRef, isIntersecting, shouldDisableVideo } = useLazyVideo({ rootMargin: '400px' });
 
   if (shouldDisableVideo) {
@@ -53,7 +52,6 @@ const LazyVideo: React.FC<LazyVideoProps> = React.memo(({ src, className, poster
       muted
       playsInline
       preload={isIntersecting ? 'auto' : 'metadata'}
-      poster={poster}
       className={className}
     >
       <source src={src} type="video/mp4" />
@@ -96,7 +94,6 @@ export const FeaturesSection: React.FC = () => {
             <div className="rounded-2xl overflow-hidden relative min-h-[360px] lg:min-h-full h-full flex flex-col justify-end p-6 md:p-8 border border-white/5 group">
               <LazyVideo
                 src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23121212'/%3E%3Cstop offset='100%25' style='stop-color:%230a0a0a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="noise-overlay opacity-[0.5] mix-blend-overlay pointer-events-none absolute inset-0 z-1" />
@@ -112,7 +109,6 @@ export const FeaturesSection: React.FC = () => {
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
               <LazyVideo
                 src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23111111'/%3E%3Cstop offset='100%25' style='stop-color:%23090909'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
 
@@ -131,7 +127,6 @@ export const FeaturesSection: React.FC = () => {
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
               <LazyVideo
                 src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23101010'/%3E%3Cstop offset='100%25' style='stop-color:%23080808'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
 
@@ -150,7 +145,6 @@ export const FeaturesSection: React.FC = () => {
             <div className="rounded-2xl overflow-hidden relative p-6 md:p-8 flex flex-col justify-end min-h-[360px] lg:min-h-full h-full border border-white/5 group hover:border-white/10 transition-colors">
               <LazyVideo
                 src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4"
-                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230f0f0f'/%3E%3Cstop offset='100%25' style='stop-color:%23070707'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
 
