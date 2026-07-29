@@ -21,6 +21,8 @@ export const VelorahSection: React.FC<VelorahSectionProps> = React.memo(({ onOpe
           muted
           playsInline
           preload={isIntersecting ? 'auto' : 'metadata'}
+          crossOrigin="anonymous"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230d1218'/%3E%3Cstop offset='100%25' style='stop-color:%2305080c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
           className="absolute inset-0 w-full h-full object-cover z-0"
         >
           <source

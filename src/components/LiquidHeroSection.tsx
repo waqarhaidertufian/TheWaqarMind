@@ -103,8 +103,10 @@ export const LiquidHeroSection: React.FC = React.memo(() => {
           muted
           playsInline
           preload={isIntersecting ? 'auto' : 'metadata'}
+          crossOrigin="anonymous"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23151515'/%3E%3Cstop offset='100%25' style='stop-color:%23080808'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E"
           className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
-          style={{ opacity: 0 }}
+          style={{ opacity: isIntersecting ? 1 : 0, transition: 'opacity 1s ease-in-out' }}
         >
           <source
             src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"
