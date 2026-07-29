@@ -98,6 +98,8 @@ export const LiquidHeroSection: React.FC = React.memo(() => {
       {!shouldDisableVideo ? (
         <video
           ref={videoRef}
+          autoPlay={isIntersecting}
+          loop
           muted
           playsInline
           preload={isIntersecting ? 'auto' : 'metadata'}
