@@ -9,7 +9,7 @@ import { StoryImageSection } from './components/StoryImageSection';
 import { VelorahSection } from './components/VelorahSection';
 import { Preloader } from './components/Preloader';
 import { Toast } from './components/Toast';
-import { trackEvent } from './lib/analytics';
+import { trackEvent, trackPageView } from './lib/analytics';
 
 // Lazy loaded modals
 const LibraryModal = lazy(() => import('./components/LibraryModal').then(module => ({ default: module.LibraryModal })));
@@ -32,6 +32,12 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [isPreloaderComplete]);
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView(window.location.pathname);
+    console.log("GA4 Page View Tracked:", window.location.pathname);
+  }, []);
 
   const handleOpenLibrary = () => {
     trackEvent('Navigation', 'Open Library', 'Digital Library Modal');
