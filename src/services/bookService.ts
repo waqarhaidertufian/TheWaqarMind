@@ -1,6 +1,52 @@
 import { Book } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
+// Helper to map external image URLs to fast-loading local public assets
+function getLocalCoverImage(title: string, coverImage: string): string {
+  const normalizedTitle = title.trim().toLowerCase();
+  
+  if (normalizedTitle.includes('logged in')) {
+    return '/images/logged_in_spiritually_empty.png';
+  }
+  if (normalizedTitle.includes('lonely ummah')) {
+    return '/images/the_lonely_ummah.png';
+  }
+  if (normalizedTitle.includes('sunnah')) {
+    return '/images/living_the_sunnah.png';
+  }
+  if (normalizedTitle.includes('sons without fathers')) {
+    return '/images/sons_without_fathers.png';
+  }
+  if (normalizedTitle.includes('apni talash')) {
+    return '/images/apni_talash.png';
+  }
+  if (normalizedTitle.includes('aik zakham') || normalizedTitle.includes('zakham')) {
+    return '/images/aik_zakham_aur_sahi.png';
+  }
+  if (normalizedTitle.includes('mazloom iqbal')) {
+    return '/images/mazloom_iqbal.png';
+  }
+  if (normalizedTitle.includes('success stories')) {
+    return '/images/real_life_success_stories.png';
+  }
+  if (normalizedTitle.includes('mothers without villains')) {
+    return '/images/mothers_without_villains.png';
+  }
+  if (normalizedTitle.includes('grandmotherland')) {
+    return '/images/grandmotherland_introduction.png';
+  }
+  
+  return coverImage;
+}
+
+function processBook(book: any): Book {
+  if (!book) return book;
+  return {
+    ...book,
+    cover_image: getLocalCoverImage(book.title, book.cover_image)
+  };
+}
+
 export const bookService = {
   // Fetch all books from Supabase Database
   async fetchBooks(): Promise<Book[]> {
@@ -29,7 +75,8 @@ export const bookService = {
           console.log('[Supabase DB Fetch Success]: Successfully retrieved books from public.books:', data);
         }
 
-        return (data as Book[]) || [];
+        const booksData = (data as Book[]) || [];
+        return booksData.map(processBook);
       } catch (err: any) {
         console.error('[Supabase DB Query Error]:', err?.message || err);
         return [];
@@ -71,7 +118,7 @@ export const bookService = {
     }
 
     console.log('[Supabase DB Insert Success]: Inserted row into public.books:', data);
-    return data as Book;
+    return processBook(data);
   },
 
   // Update existing book in Supabase Database
@@ -97,7 +144,7 @@ export const bookService = {
     }
 
     console.log('[Supabase DB Update Success]: Updated book:', data);
-    return data as Book;
+    return processBook(data);
   },
 
   // Delete book from Supabase Database
